@@ -1,0 +1,25 @@
+{
+  "name": "onboarding",
+  "version": "1.0.0",
+  "description": "Experimental Project for learning Apollo-server-express, GraphQL, TypeORM, class-validator etc.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RufatGulabli/onboarding.git"
+  },
+  "author": "Rufat Gulabli",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RufatGulabli/onboarding/issues"
+  },
+  "homepage": "https://github.com/RufatGulabli/onboarding#readme",
+  "dependencies": {
+    "apollo-server-express": "2.19.2",
+    "express": "^4.17.1",
+    "graphql": "^15.5.1"
+  }
+}
