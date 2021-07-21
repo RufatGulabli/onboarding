@@ -1,6 +1,4 @@
 import { Arg, Query, createUnionType } from "type-graphql";
-import Student from "../types/Student";
-import Group from "../types/Group";
 import { GroupOrStudentUnionType } from "../types/GroupOrStudent";
 import { groups, students } from "../../mock/data";
 
