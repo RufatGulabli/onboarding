@@ -1,0 +1,11 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "eteamio",
+  "password": "eteamio123",
+  "database": "university",
+  "logging": true,
+  "synchronize": true,
+  "entities": ["src/graphql/types/*.ts"]
+}

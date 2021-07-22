@@ -1,52 +1,43 @@
 import { Arg, Int, Mutation, Query, Resolver } from "type-graphql";
-import Student from "../types/Student";
+import { Student } from "../types/Student";
 import { StudentInputType } from "../input-types/InputTypes";
-import pool from "../../db/connection";
-import { studentMapper } from "../../utils/StudentMapper";
 
 @Resolver()
 export default class StudentResolver {
   @Query(() => [Student], {
     description: "Returns back the list of students.",
   })
-  async students() {
+  async students(): Promise<Student[] | Error> {
     try {
-      const { rows } = await pool.query(
-        "SELECT Std.id, Std.fullName, Std.email, Std.age FROM students as Std;"
-      );
-      return rows.map(studentMapper);
+      const students = await Student.find();
+      return students;
     } catch (err) {
       console.error(err);
       return new Error(err);
     }
   }
 
-  @Query(() => Student, {
+  @Query(() => Student || Error, {
     nullable: true,
     description: "Returns student by ID.",
   })
-  async student(@Arg("id", () => Int) id: number) {
+  async student(@Arg("id", () => Int) id: number): Promise<Student | Error> {
     try {
-      const { rows } = await pool.query("SELECT * from students WHERE id=$1", [
-        id,
-      ]);
-      return rows.map(studentMapper)[0];
+      const student = await Student.find({ id });
+      return student[0];
     } catch (err) {
       console.error(err);
       return new Error(err);
     }
   }
 
-  @Mutation(() => Boolean || Error)
+  @Mutation(() => Student || Error)
   async createStudent(
     @Arg("body") body: StudentInputType
-  ): Promise<Boolean | Error> {
+  ): Promise<Student | Error> {
     try {
-      await pool.query(
-        "INSERT INTO students(fullName, email, age) VALUES($1, $2, $3)",
-        [body.fullname, body.email, body.age]
-      );
-      return true;
+      const { fullname, email, age } = body;
+      return await Student.create({ fullname, email, age }).save();
     } catch (err) {
       console.error(err);
       return new Error(err);
@@ -58,7 +49,10 @@ export default class StudentResolver {
     @Arg("id", () => Int) id: number
   ): Promise<Boolean | Error> {
     try {
-      await pool.query("DELETE FROM students WHERE id=$1", [id]);
+      const { affected } = await Student.delete({ id });
+      if (affected !== 1) {
+        return new Error("Student Not Found");
+      }
       return true;
     } catch (err) {
       console.error(err);

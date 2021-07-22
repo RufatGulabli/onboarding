@@ -1,8 +1,12 @@
-import { Field, InputType, Int } from "type-graphql";
+import { Field, InputType, Int, ObjectType } from "type-graphql";
 import { IsEmail, IsInt, Length, Max, Min } from "class-validator";
+import { Student } from "../types/Student";
 
 @InputType()
 export class StudentInputType {
+  @Field(() => Int, { nullable: true })
+  id?: number;
+
   @Field()
   @Length(5, 128, {
     message: () =>
@@ -31,7 +35,6 @@ export class GroupInputType {
   @Length(3, 3)
   code: string;
 
-  @Field(() => [Int], { nullable: true })
-  @Min(0, { each: true })
-  students?: [number];
+  @Field(() => [StudentInputType], { nullable: true })
+  students?: Student[];
 }

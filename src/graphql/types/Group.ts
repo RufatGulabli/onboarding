@@ -1,17 +1,32 @@
-import { Field, ID, ObjectType } from "type-graphql";
-import Student from "./Student";
+import { Field, ID, Int, ObjectType } from "type-graphql";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { StudentInputType } from "../input-types/InputTypes";
+import { Student } from "./Student";
 
 @ObjectType()
-export default class Group {
-  @Field((type) => ID)
+@Entity()
+export class Group extends BaseEntity {
+  @Field(() => ID)
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Field()
+  @Column({ length: 255, unique: true })
   name: string;
 
   @Field()
+  @Column({ unique: true })
   code: string;
 
-  @Field((type) => [Student])
+  @Field(() => [Student], { nullable: true })
+  @ManyToMany(() => Student)
+  @JoinTable()
   students: Student[];
 }

@@ -1,6 +1,6 @@
 import { createUnionType } from "type-graphql";
-import Group from "./Group";
-import Student from "./Student";
+import { Group } from "./Group";
+import { Student } from "./Student";
 
 export const GroupOrStudentUnionType = createUnionType({
   name: "GroupOrStudentUnionType",

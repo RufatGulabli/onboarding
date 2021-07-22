@@ -1,9 +1,7 @@
-import { Arg, ID, Int, Mutation, ObjectType, Query } from "type-graphql";
-import pool from "../../db/connection";
-import { groups, students } from "../../mock/data";
-import { groupMapper } from "../../utils/GroupMapper";
+import { Arg, Int, Mutation, Query } from "type-graphql";
 import { GroupInputType } from "../input-types/InputTypes";
-import Group from "../types/Group";
+import { Group } from "../types/Group";
+import { Student } from "../types/Student";
 
 export default class GroupResolver {
   @Query(() => [Group] || Error, {
@@ -12,10 +10,8 @@ export default class GroupResolver {
   })
   async groups(): Promise<Group[] | Error> {
     try {
-      const { rows } = await pool.query(
-        "SELECT g.id, g.name, g.code FROM groups as g;"
-      );
-      return rows.map(groupMapper);
+      const students = await Group.find({ relations: ["students"] });
+      return students;
     } catch (err) {
       console.error(err);
       return new Error(err);
@@ -26,43 +22,22 @@ export default class GroupResolver {
     nullable: true,
     description: "Returns group by ID.",
   })
-  async group(@Arg("id", (type) => Int) id: number) {
+  async group(@Arg("id", (type) => Int) id: number): Promise<Group | Error> {
     try {
-      const { rows } = await pool.query(
-        "SELECT g.id, g.name, g.code FROM groups g WHERE id=$1",
-        [id]
-      );
-      return rows.map(groupMapper)[0];
+      const group = await Group.find({ id });
+      return group[0];
     } catch (err) {
       console.error(err);
       return new Error(err);
     }
   }
 
-  @Mutation(() => Int || Error)
-  async createGroup(@Arg("body") body: GroupInputType) {
+  @Mutation(() => Group || Error)
+  async createGroup(@Arg("body") body: GroupInputType): Promise<Group | Error> {
     try {
-      await pool.query("BEGIN");
-      const { rows } = await pool.query(
-        "INSERT INTO groups(name, code) VALUES($1, $2) RETURNING id",
-        [body.name, body.code]
-      );
-      if (body.students.length) {
-        for (const studentId of body.students) {
-          /* 
-            Here I have to check incoming studentId on the DB if it exists or not,
-            but for the sake of simplicity I ignored it.
-          */
-          await pool.query(
-            "INSERT INTO groups_students(group_id, student_id) VALUES($1, $2)",
-            [rows[0].id, studentId]
-          );
-        }
-      }
-      await pool.query("COMMIT");
-      return rows[0].id;
+      const { name, code, students = [] } = body;
+      return await Group.create({ name, code, students }).save();
     } catch (err) {
-      await pool.query("ROLLBACK");
       console.log(err);
       return new Error(err);
     }
@@ -73,11 +48,9 @@ export default class GroupResolver {
     @Arg("id", () => Int) id: number
   ): Promise<Boolean | Error> {
     try {
-      const { rowCount } = await pool.query("DELETE FROM groups WHERE id=$1", [
-        id,
-      ]);
-      if (rowCount !== 1) {
-        return new Error("Group Not Found.");
+      const { affected } = await Group.delete({ id });
+      if (affected !== 1) {
+        return new Error("Group Not Found");
       }
       return true;
     } catch (err) {
