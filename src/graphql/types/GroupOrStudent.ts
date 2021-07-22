@@ -9,7 +9,7 @@ export const GroupOrStudentUnionType = createUnionType({
     if ("code" in value) {
       return Group;
     }
-    if ("fullName" in value) {
+    if ("fullname" in value) {
       return Student;
     }
     return undefined;

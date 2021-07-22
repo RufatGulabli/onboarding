@@ -1,13 +1,13 @@
 export const students = [
   {
     id: 1,
-    fullName: "Edward Johanson",
+    fullname: "Edward Johanson",
     email: "eddie@gmail.com",
     age: 34,
   },
   {
     id: 2,
-    fullName: "Jessie Smith",
+    fullname: "Jessie Smith",
     email: "jessie@yahoo.co.uk",
     age: 23,
   },
@@ -21,7 +21,7 @@ export const groups = [
     students: [
       {
         id: 1,
-        fullName: "Edward Johanson",
+        fullname: "Edward Johanson",
         email: "eddie@gmail.com",
         age: 34,
       },
@@ -34,7 +34,7 @@ export const groups = [
     students: [
       {
         id: 2,
-        fullName: "Jessie Smith",
+        fullname: "Jessie Smith",
         email: "jessie@yahoo.co.uk",
         age: 23,
       },

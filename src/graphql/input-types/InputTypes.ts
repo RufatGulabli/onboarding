@@ -8,7 +8,7 @@ export class StudentInputType {
     message: () =>
       "$property length must be greater than $constraint1 and lower than $constraint2 symbols",
   })
-  fullName: string;
+  fullname: string;
 
   @Field()
   @IsEmail()

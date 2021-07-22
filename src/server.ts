@@ -5,10 +5,15 @@ import { buildSchema } from "type-graphql";
 import StudentResolver from "./graphql/resolvers/StudentResolver";
 import GroupResolver from "./graphql/resolvers/GroupResolver";
 import UnionResolver from "./graphql/resolvers/UnionResolver";
+import pool from "./db/connection";
 
 const PORT = process.env.PORT || 4000;
 
-const bootstrap = async () => {
+(async () => {
+  await pool.connect().then(() => {
+    console.log("Connected To Postgres DB");
+  });
+
   const schema = await buildSchema({
     resolvers: [StudentResolver, GroupResolver, UnionResolver],
   });
@@ -19,6 +24,4 @@ const bootstrap = async () => {
   app.listen(PORT, () => {
     console.log(`Server is up and running on http://localhost:${PORT}/graphql`);
   });
-};
-
-bootstrap();
+})();

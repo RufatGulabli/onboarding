@@ -6,7 +6,7 @@ export default class Student {
   id: number;
 
   @Field()
-  fullName: string;
+  fullname: string;
 
   @Field()
   email: string;

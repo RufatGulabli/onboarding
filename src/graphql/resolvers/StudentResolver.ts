@@ -1,35 +1,36 @@
 import { Arg, Int, Mutation, Query, Resolver } from "type-graphql";
 import Student from "../types/Student";
-import { students } from "../../mock/data";
 import { StudentInputType } from "../input-types/InputTypes";
+import pool from "../../db/connection";
+import { studentMapper } from "../../utils/StudentMapper";
 
 @Resolver()
 export default class StudentResolver {
   @Query(() => [Student], {
     description: "Returns back the list of students.",
   })
-  students() {
-    return students;
+  async students() {
+    try {
+      const { rows } = await pool.query(
+        "SELECT Std.id, Std.fullName, Std.email, Std.age FROM students as Std;"
+      );
+      return rows.map(studentMapper);
+    } catch (err) {
+      console.error(err);
+      return new Error(err);
+    }
   }
 
   @Query(() => Student, {
     nullable: true,
     description: "Returns student by ID.",
   })
-  student(@Arg("id", () => Int) id: number) {
-    return students.find((s) => s.id === id);
-  }
-
-  @Mutation(() => Student || Error)
-  createStudent(@Arg("body") body: StudentInputType): Student | Error {
+  async student(@Arg("id", () => Int) id: number) {
     try {
-      const newStudent = new Student();
-      newStudent.id = Math.ceil(Math.random() * 100);
-      newStudent.fullName = body.fullName;
-      newStudent.email = body.email;
-      newStudent.age = body.age;
-      students.push(newStudent);
-      return newStudent;
+      const { rows } = await pool.query("SELECT * from students WHERE id=$1", [
+        id,
+      ]);
+      return rows.map(studentMapper)[0];
     } catch (err) {
       console.error(err);
       return new Error(err);
@@ -37,13 +38,27 @@ export default class StudentResolver {
   }
 
   @Mutation(() => Boolean || Error)
-  deleteStudent(@Arg("id", () => Int) id: number): Boolean | Error {
+  async createStudent(
+    @Arg("body") body: StudentInputType
+  ): Promise<Boolean | Error> {
     try {
-      const studentIndex = students.findIndex((s) => s.id === id);
-      if (studentIndex === -1) {
-        return false;
-      }
-      students.splice(studentIndex, 1);
+      await pool.query(
+        "INSERT INTO students(fullName, email, age) VALUES($1, $2, $3)",
+        [body.fullname, body.email, body.age]
+      );
+      return true;
+    } catch (err) {
+      console.error(err);
+      return new Error(err);
+    }
+  }
+
+  @Mutation(() => Boolean || Error)
+  async deleteStudent(
+    @Arg("id", () => Int) id: number
+  ): Promise<Boolean | Error> {
+    try {
+      await pool.query("DELETE FROM students WHERE id=$1", [id]);
       return true;
     } catch (err) {
       console.error(err);

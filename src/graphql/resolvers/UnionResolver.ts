@@ -1,18 +1,30 @@
-import { Arg, Query, createUnionType } from "type-graphql";
+import { Arg, Query } from "type-graphql";
 import { GroupOrStudentUnionType } from "../types/GroupOrStudent";
 import { groups, students } from "../../mock/data";
+import pool from "../../db/connection";
+import { studentMapper } from "../../utils/StudentMapper";
+import { groupMapper } from "../../utils/GroupMapper";
 
 export default class UnionResolver {
-  @Query(() => [GroupOrStudentUnionType])
-  getRandomStudentOrGroup(
+  @Query(() => [GroupOrStudentUnionType] || Error)
+  async getRandomStudentOrGroup(
     @Arg("name") name: string
-  ): Array<typeof GroupOrStudentUnionType> {
-    const matchedStudents = students.filter(
-      (s) => s.fullName.toLowerCase() === name.toLowerCase()
-    );
-    const matchedGroups = groups.filter(
-      (s) => s.name.toLowerCase() === name.toLowerCase()
-    );
-    return [...matchedStudents, ...matchedGroups];
+  ): Promise<Array<typeof GroupOrStudentUnionType> | Error> {
+    try {
+      const { rows } = await pool.query(
+        "SELECT * FROM students WHERE fullname ILIKE $1",
+        [name]
+      );
+      const matchedStudents = rows.map(studentMapper);
+      const { rows: result } = await pool.query(
+        "SELECT * FROM groups WHERE name ILIKE $1",
+        [name]
+      );
+      const matchedGroups = result.map(groupMapper);
+      return [...matchedStudents, ...matchedGroups];
+    } catch (err) {
+      console.error(err);
+      return new Error(err);
+    }
   }
 }
