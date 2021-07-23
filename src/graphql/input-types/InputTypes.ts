@@ -29,7 +29,7 @@ export class StudentInputType {
 export class GroupInputType {
   @Field({ description: "Name of the group" })
   @Length(3, 26)
-  name: string;
+  title: string;
 
   @Field({ description: "Code of the group." })
   @Length(3, 3)

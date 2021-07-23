@@ -35,8 +35,8 @@ export default class GroupResolver {
   @Mutation(() => Group || Error)
   async createGroup(@Arg("body") body: GroupInputType): Promise<Group | Error> {
     try {
-      const { name, code, students = [] } = body;
-      return await Group.create({ name, code, students }).save();
+      const { title, code, students = [] } = body;
+      return await Group.create({ title, code, students }).save();
     } catch (err) {
       console.log(err);
       return new Error(err);

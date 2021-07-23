@@ -6,6 +6,13 @@
   "password": "eteamio123",
   "database": "university",
   "logging": true,
-  "synchronize": true,
-  "entities": ["src/graphql/types/*.ts"]
+  "synchronize": false,
+  "entities": ["src/graphql/types/*.ts"],
+  "migrations": ["src/migration/**/*.ts"],
+  "subscribers": ["src/subscriber/**/*.ts"],
+  "cli": {
+    "entitiesDir": "src/graphql",
+    "migrationsDir": "src/migration",
+    "subscribersDir": "src/subscriber"
+  }
 }

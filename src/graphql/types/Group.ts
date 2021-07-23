@@ -19,7 +19,7 @@ export class Group extends BaseEntity {
 
   @Field()
   @Column({ length: 255, unique: true })
-  name: string;
+  title: string;
 
   @Field()
   @Column({ unique: true })
